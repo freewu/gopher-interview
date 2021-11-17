@@ -91,5 +91,91 @@ new(T) 会为了 T 类型的新值分配已置零的内存空间，并返回地�
 make(T, args) 返回初始化之后的T类型的值，也不是指针 *T ，是经过初始化之后的T的引用。 make() 只适用于 slice 、 map 和 chennel 。
 ```
 
+## Go 是传值还是传引用
 
+```
+如同 C 系列的所有语言一样，Go 语言中的所有东西都是以值传递的。也就是说，一个函数总是得到一个被传递的东西的副本，就像有一个赋值语句将值赋给参数一样。
+
+向一个函数传递一个 int 值，就会得到 int 的副本。
+    而传递一个指针值就会得到指针的副本，但不会得到它所指向的数据。
+    
+map 和 slice 的行为类似于指针：它们是包含指向底层 map 或 slice 数据的指针的描述符。
+	复制一个 map 或 slice 值并不会复制它所指向的数据。
+	复制一个接口值会复制存储在接口值中的东西。
+	如果接口值持有一个结构，复制接口值就会复制该结构。
+	如果接口值持有一个指针，复制接口值会复制该指针，但同	样不会复制它所指向的数据。
+
+
+```
+
+## Go 如何实现面向对象
+
+```
+# 封装
+	首字母大写，代表是公共的、可被外部访问的。
+	首字母小写，代表是私有的，不可以被外部访问。
+	
+	type Animal struct {
+     	name string
+    }
+
+    func NewAnimal() *Animal {
+     	return &Animal{}
+    }
+
+    func (p *Animal) SetName(name string) {
+     	p.name = name
+    }
+
+    func (p *Animal) GetName() string {
+     	return p.name
+    }
+    
+# 继承
+	在 Go 语言中，是没有类似 extends 关键字的这种继承的方式，在语言设计上采取的是组合的方式
+	type Animal struct {
+     	Name string
+    }
+
+    type Cat struct {
+         Animal
+         FeatureA string
+    }
+
+    type Dog struct {
+         Animal
+         FeatureB string
+    }
+    
+    func main() {
+         p := NewAnimal()
+         p.SetName("bluefrog")
+
+         dog := Dog{Animal: *p}
+         fmt.Println(dog.GetName())
+    }
+
+# 多态
+	在 Go 语言中，多态是通过接口来实现
+	type AnimalSounder interface {
+     	MakeDNA()
+    }
+
+    func MakeSomeDNA(animalSounder AnimalSounder) {
+     	animalSounder.MakeDNA()
+    }
+
+    func (c *Cat) MakeDNA() {
+     	fmt.Println("cat cat cat")
+    }
+
+    func (c *Dog) MakeDNA() {
+         fmt.Println("dog dog dog")
+    }
+
+    func main() {
+     	MakeSomeDNA(&Cat{})
+     	MakeSomeDNA(&Dog{})
+    }
+```
 
